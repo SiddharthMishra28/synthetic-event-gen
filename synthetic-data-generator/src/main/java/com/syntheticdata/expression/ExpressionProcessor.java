@@ -29,8 +29,7 @@ public class ExpressionProcessor {
     private String resolveExpression(String rawExpr) {
         try {
             if (rawExpr.startsWith("faker.")) {
-                // return fakerInvoker.invoke(rawExpr); // FIXME: Uncomment when implemented
-                return null;
+                return fakerInvoker.invoke(rawExpr);
             } else if (rawExpr.startsWith("T+") || rawExpr.startsWith("t+")) {
                 // return dateEvaluator.addTime(rawExpr); // FIXME: Uncomment when implemented
                 return null;
