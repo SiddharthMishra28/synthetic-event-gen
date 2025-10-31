@@ -40,13 +40,6 @@ public class ExpressionProcessorTest {
         assertTrue(parts[1].matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"));
     }
 
-    @Test
-    public void testUnimplementedExpressions() {
-        ExpressionProcessor processor = new ExpressionProcessor();
-
-        String result = processor.evaluate("{{RANGE(1-10)}}");
-        assertEquals("RANGE(1-10)", result);
-    }
 
     @Test
     public void testDateExpressions() {
@@ -61,5 +54,16 @@ public class ExpressionProcessorTest {
         assertNotNull(time);
         assertFalse(time.startsWith("[DATE_ERR"));
         assertTrue(time.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}"));
+    }
+
+    @Test
+    public void testRangeExpressions() {
+        ExpressionProcessor processor = new ExpressionProcessor();
+
+        String range = processor.evaluate("{{RANGE(10-100)}}");
+        assertNotNull(range);
+        assertFalse(range.startsWith("[RANGE_ERR"));
+        int value = Integer.parseInt(range);
+        assertTrue(value >= 10 && value <= 100);
     }
 }

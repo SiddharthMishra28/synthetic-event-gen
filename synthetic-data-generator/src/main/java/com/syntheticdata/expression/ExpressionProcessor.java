@@ -43,8 +43,7 @@ public class ExpressionProcessor {
             } else if (rawExpr.matches("^[Tt][+-].*")) {
                 return dateEvaluator.addTime(rawExpr);
             } else if (rawExpr.startsWith("RANGE(")) {
-                // return rangeEvaluator.evaluate(rawExpr); // FIXME: Uncomment when implemented
-                return rawExpr;
+                return rangeEvaluator.evaluate(rawExpr);
             } else if (rawExpr.contains("#") || rawExpr.contains("$")) {
                 // return patternGenerator.generate(rawExpr); // FIXME: Uncomment when implemented
                 return rawExpr;
