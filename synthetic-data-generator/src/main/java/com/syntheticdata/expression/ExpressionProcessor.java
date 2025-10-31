@@ -12,37 +12,46 @@ public class ExpressionProcessor {
     private final RangeExpressionEvaluator rangeEvaluator = new RangeExpressionEvaluator();
     private final CustomPatternGenerator patternGenerator = new CustomPatternGenerator();
 
-    public String evaluate(String expression) {
-        Matcher matcher = EXPRESSION_PATTERN.matcher(expression);
-        StringBuffer sb = new StringBuffer();
+    /**
+     * Main entry point — evaluates string with one or many {{expressions}}.
+     */
+    public String evaluate(String input) {
+        if (input == null || !input.contains("{{")) {
+            return input;
+        }
+
+        Matcher matcher = EXPRESSION_PATTERN.matcher(input);
+        StringBuffer result = new StringBuffer();
 
         while (matcher.find()) {
             String rawExpr = matcher.group(1).trim();
-            String value = resolveExpression(rawExpr);
-            matcher.appendReplacement(sb, value != null ? value : matcher.group(0));
+            String evaluatedValue = resolveExpression(rawExpr);
+            matcher.appendReplacement(result, Matcher.quoteReplacement(evaluatedValue));
         }
 
-        matcher.appendTail(sb);
-        return sb.toString();
+        matcher.appendTail(result);
+        return result.toString();
     }
 
+    /**
+     * Resolves individual {{...}} expressions.
+     */
     private String resolveExpression(String rawExpr) {
         try {
             if (rawExpr.startsWith("faker.")) {
                 return fakerInvoker.invoke(rawExpr);
             } else if (rawExpr.startsWith("T+") || rawExpr.startsWith("t+")) {
                 // return dateEvaluator.addTime(rawExpr); // FIXME: Uncomment when implemented
-                return null;
+                return rawExpr;
             } else if (rawExpr.startsWith("RANGE(")) {
                 // return rangeEvaluator.evaluate(rawExpr); // FIXME: Uncomment when implemented
-                return null;
+                return rawExpr;
             } else if (rawExpr.contains("#") || rawExpr.contains("$")) {
                 // return patternGenerator.generate(rawExpr); // FIXME: Uncomment when implemented
-                return null;
+                return rawExpr;
             } else if (rawExpr.equalsIgnoreCase("UUID")) {
                 return java.util.UUID.randomUUID().toString();
             } else {
-                // Unknown expression — return unchanged
                 return rawExpr;
             }
         } catch (Exception e) {
