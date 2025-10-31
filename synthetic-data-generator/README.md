@@ -1,0 +1,197 @@
+# Synthetic Data Generator
+
+A powerful and flexible Java library for generating synthetic data based on dynamic templates.
+
+Developed by: **Siddharth Mishra** <connectwithsiddharthm@gmail.com>
+
+---
+
+## 🚀 Quick Start
+
+Getting started is as simple as providing a template string with placeholders. The engine will do the rest.
+
+**1. Add the Maven Dependency:**
+
+```xml
+<dependency>
+  <groupId>com.syntheticdata</groupId>
+  <artifactId>synthetic-data-generator</artifactId>
+  <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
+**2. Create Your First Template:**
+
+```java
+public class QuickStart {
+    public static void main(String[] args) {
+        String template = """
+            {
+              "transactionId": "TXN-{{RANDSTR(8)}}",
+              "user": {
+                "name": "{{faker.name().fullName()}}",
+                "email": "{{faker.internet().emailAddress()}}"
+              },
+              "eventTimestamp": "{{T-1}}",
+              "amount": {{RANGE(50-250)}}
+            }
+        """;
+
+        String syntheticEvent = com.syntheticdata.engine.SyntheticDataEngine.generateData(template);
+        System.out.println(syntheticEvent);
+    }
+}
+```
+
+**3. Run and See the Magic!**
+
+*Example Output:*
+```json
+{
+  "transactionId": "TXN-aB3xZ9Pq",
+  "user": {
+    "name": "John Doe",
+    "email": "john.doe@example.com"
+  },
+  "eventTimestamp": "2025-10-30T10:05:15.123456",
+  "amount": 173
+}
+```
+
+---
+
+## ✨ Features
+
+The library supports a wide range of placeholders, which can be mixed and matched to generate complex and realistic data.
+
+### 1. Faker-Based Data Generation
+
+Leverage the power of the popular **DataFaker** library to generate a massive variety of realistic data.
+
+-   **Syntax:** `{{faker.category().method()}}`
+
+-   **Examples:**
+    -   `{{faker.name().fullName()}}` -> "Jane Smith"
+    -   `{{faker.internet().emailAddress()}}` -> "jane.smith@example.com"
+    -   `{{faker.address().city()}}` -> "New York"
+    -   `{{faker.finance().iban()}}` -> "DE89370400440532013000"
+    -   `{{faker.company().name()}}` -> "Tech Solutions Inc."
+
+### 2. Plugin-Based Functions
+
+Use built-in or custom functions for common data generation needs.
+
+-   **UUIDs:** Generate random universally unique identifiers.
+    -   **Syntax:** `{{UUID()}}`
+    -   **Example Output:** "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+
+-   **Random Alphanumeric Strings:**
+    -   **Syntax:** `{{RANDSTR(length)}}`
+    -   **Example:** `{{RANDSTR(8)}}` -> "aB3xZ9Pq"
+    -   *(Default length is 8 if not specified)*
+
+-   **Random Alphabetic Strings:**
+    -   **Syntax:** `{{ALPHA(length)}}`
+    -   **Example:** `{{ALPHA(5)}}` -> "XyZaB"
+    -   *(Default length is 6 if not specified)*
+
+### 3. Numeric Ranges
+
+Generate random integers within a specified inclusive range.
+
+-   **Syntax:** `{{RANGE(min-max)}}`
+-   **Examples:**
+    -   `{{RANGE(1-100)}}` -> A number between 1 and 100.
+    -   `{{RANGE(1000-9999)}}` -> A 4-digit number.
+
+### 4. Date and Time Expressions
+
+Generate timestamps relative to the current date and time.
+
+-   **Day-based Offsets:**
+    -   **Syntax:** `{{T+days}}` or `{{T-days}}`
+    -   **Example:** `{{T+3}}` -> The date 3 days from now.
+    -   **Example:** `{{T-1}}` -> Yesterday's date.
+
+-   **Hour-based Offsets:**
+    -   **Syntax:** `{{t+hours}}` or `{{t-hours}}`
+    -   **Example:** `{{t+5}}` -> The time 5 hours from now.
+
+### 5. Custom Pattern Generation
+
+Create custom formatted strings with random digits and letters.
+
+-   **`#` for Random Digits (0-9):**
+    -   **Example:** `ORDER-####` -> "ORDER-1234"
+
+-   **`$` for Random Uppercase Letters (A-Z):**
+    -   **Example:** `INV-$$$` -> "INV-XYZ"
+
+### 6. Chained and Nested Expressions
+
+The true power of the library comes from its ability to combine any of the above features in a single placeholder.
+
+-   **Examples:**
+    -   `{{faker.name().lastName()}}_{{RANGE(1-10)}}` -> "Smith_7"
+    -   `TRAN-{{RANGE(1000-9999)}}-##` -> "TRAN-5432-89"
+    -   `ID-{{ALPHA(3)}}-{{RANDSTR(5)}}` -> "ID-ABC-a1B2c"
+
+---
+
+## 📖 How to Use
+
+The main entry point for the library is the `SyntheticDataEngine` class.
+
+### `SyntheticDataEngine.generateData(template)`
+
+This static method is the easiest way to get started. It takes a template string as input and returns the fully resolved string.
+
+```java
+import com.syntheticdata.engine.SyntheticDataEngine;
+
+public class MyDataGenerator {
+    public static void main(String[] args) {
+        String template = "{\"id\": \"{{UUID()}}\"}";
+        String result = SyntheticDataEngine.generateData(template);
+        System.out.println(result);
+    }
+}
+```
+
+---
+
+## 🧩 Extending the Engine with Custom Plugins
+
+You can easily create and register your own function-style plugins.
+
+**1. Implement the `FunctionPlugin` Interface:**
+
+```java
+package com.mycompany.plugins;
+
+import com.syntheticdata.expression.plugins.FunctionPlugin;
+
+public class MyCustomPlugin implements FunctionPlugin {
+    @Override
+    public String name() {
+        return "MY_PLUGIN";
+    }
+
+    @Override
+    public String execute(String[] args) {
+        // Your custom logic here
+        return "Hello, " + String.join(" ", args);
+    }
+}
+```
+
+**2. Register and Use Your Plugin:**
+
+The `SyntheticDataEngine` does not yet support dynamic plugin registration. This is a planned future enhancement.
+
+---
+
+## 👨‍💻 Developer
+
+-   **Siddharth Mishra**
+-   **Email:** <connectwithsiddharthm@gmail.com>
