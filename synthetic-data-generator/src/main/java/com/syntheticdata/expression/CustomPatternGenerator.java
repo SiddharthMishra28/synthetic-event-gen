@@ -1,57 +1,39 @@
 package com.syntheticdata.expression;
 
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-/**
- * Handles symbolic random patterns (####, $$$$)
- * and delegates nested {{ ... }} evaluation to ExpressionProcessor.
- */
 public class CustomPatternGenerator {
 
-    private static final Pattern SYMBOL_PATTERN = Pattern.compile("[#$]");
-    private static final Random RANDOM = new Random();
     private final ExpressionProcessor processor;
+    private static final Random rnd = new Random();
+    private static final String LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     public CustomPatternGenerator(ExpressionProcessor processor) {
         this.processor = processor;
     }
 
     /**
-     * Entry point – supports mixing literal symbols and nested expressions
-     * e.g. {{faker.name().lastName()}}_{{RANGE(1-10)}} or TRAN{{RANGE(1-5)}}##
+     * Resolve nested placeholders first via ExpressionProcessor
+     * then expand symbols # -> digits and $ -> uppercase letters.
      */
     public String generate(String template) {
-        if (template == null || template.isEmpty()) return "";
+        if (template == null) return "";
 
-        // 1️⃣ First, evaluate nested expressions (faker, range, etc.)
+        // 1) Evaluate nested {{...}} expressions (faker, RANGE, plugin functions)
         String resolved = processor.evaluate(template);
 
-        // 2️⃣ Then, expand pattern symbols (# -> digit, $ -> letter)
-        return expandSymbols(resolved);
-    }
-
-    /**
-     * Replace all # and $ with random digits or uppercase letters.
-     */
-    private String expandSymbols(String input) {
-        StringBuilder result = new StringBuilder();
-
-        for (char c : input.toCharArray()) {
-            switch (c) {
-                case '#':
-                    result.append(RANDOM.nextInt(10));
-                    break;
-                case '$':
-                    result.append((char) ('A' + RANDOM.nextInt(26)));
-                    break;
-                default:
-                    result.append(c);
-                    break;
+        // 2) Expand symbol characters
+        StringBuilder sb = new StringBuilder(resolved.length());
+        for (int i = 0; i < resolved.length(); i++) {
+            char c = resolved.charAt(i);
+            if (c == '#') {
+                sb.append(rnd.nextInt(10));
+            } else if (c == '$') {
+                sb.append(LETTERS.charAt(rnd.nextInt(LETTERS.length())));
+            } else {
+                sb.append(c);
             }
         }
-
-        return result.toString();
+        return sb.toString();
     }
 }
