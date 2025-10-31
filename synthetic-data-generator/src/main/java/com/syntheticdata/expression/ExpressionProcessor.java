@@ -40,9 +40,8 @@ public class ExpressionProcessor {
         try {
             if (rawExpr.startsWith("faker.")) {
                 return fakerInvoker.invoke(rawExpr);
-            } else if (rawExpr.startsWith("T+") || rawExpr.startsWith("t+")) {
-                // return dateEvaluator.addTime(rawExpr); // FIXME: Uncomment when implemented
-                return rawExpr;
+            } else if (rawExpr.matches("^[Tt][+-].*")) {
+                return dateEvaluator.addTime(rawExpr);
             } else if (rawExpr.startsWith("RANGE(")) {
                 // return rangeEvaluator.evaluate(rawExpr); // FIXME: Uncomment when implemented
                 return rawExpr;

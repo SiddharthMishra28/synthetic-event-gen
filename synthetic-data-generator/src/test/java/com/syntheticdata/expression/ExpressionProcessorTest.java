@@ -47,4 +47,19 @@ public class ExpressionProcessorTest {
         String result = processor.evaluate("{{RANGE(1-10)}}");
         assertEquals("RANGE(1-10)", result);
     }
+
+    @Test
+    public void testDateExpressions() {
+        ExpressionProcessor processor = new ExpressionProcessor();
+
+        String date = processor.evaluate("{{T+3}}");
+        assertNotNull(date);
+        assertFalse(date.startsWith("[DATE_ERR"));
+        assertTrue(date.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}"));
+
+        String time = processor.evaluate("{{t-5}}");
+        assertNotNull(time);
+        assertFalse(time.startsWith("[DATE_ERR"));
+        assertTrue(time.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}"));
+    }
 }
