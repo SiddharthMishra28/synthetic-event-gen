@@ -48,6 +48,17 @@ public class SyntheticDataEngine {
         return resolved;
     }
 
+    public List<String> generate(String inputTemplate, int count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("Count must be a positive integer.");
+        }
+        List<String> results = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            results.add(generate(inputTemplate));
+        }
+        return results;
+    }
+
     public String generateFromFile(String filePath) throws IOException {
         Path inputPath = Paths.get(filePath);
         if (!Files.exists(inputPath)) {
@@ -58,16 +69,32 @@ public class SyntheticDataEngine {
         File configFile = findConfigFile(filePath);
 
         if (configFile != null) {
-            // JSONPath-based processing
             PayloadConfig config = configLoader.loadConfig(configFile);
             return jsonPathProcessor.process(content, config.getFieldMappings());
         } else {
-            // Direct processing
             return generate(content);
         }
     }
 
+    public List<String> generateFromFile(String filePath, int count) throws IOException {
+        if (count <= 0) {
+            throw new IllegalArgumentException("Count must be a positive integer.");
+        }
+        List<String> results = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            results.add(generateFromFile(filePath));
+        }
+        return results;
+    }
+
     public List<String> generateFromDirectory(String dirPath) throws IOException {
+        return generateFromDirectory(dirPath, 1);
+    }
+
+    public List<String> generateFromDirectory(String dirPath, int count) throws IOException {
+        if (count <= 0) {
+            throw new IllegalArgumentException("Count must be a positive integer.");
+        }
         List<String> results = new ArrayList<>();
         List<File> jsonFiles;
         try (Stream<Path> stream = Files.walk(Paths.get(dirPath))) {
@@ -79,7 +106,7 @@ public class SyntheticDataEngine {
         }
 
         for (File jsonFile : jsonFiles) {
-            results.add(generateFromFile(jsonFile.getAbsolutePath()));
+            results.addAll(generateFromFile(jsonFile.getAbsolutePath(), count));
         }
         return results;
     }
@@ -99,5 +126,9 @@ public class SyntheticDataEngine {
 
     public static String generateData(String template) {
         return new SyntheticDataEngine().generate(template);
+    }
+
+    public static List<String> generateData(String template, int count) {
+        return new SyntheticDataEngine().generate(template, count);
     }
 }

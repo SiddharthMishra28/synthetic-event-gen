@@ -73,7 +73,17 @@ String template = "{\"id\": \"{{UUID()}}\"}";
 String result = SyntheticDataEngine.generateData(template);
 ```
 
-### 2. File-Based Processing
+### 2. Generating Multiple Records
+
+You can generate a list of synthetic records from a single template by providing a `count`.
+
+```java
+String template = "{\"id\": \"{{UUID()}}\"}";
+List<String> results = SyntheticDataEngine.generateData(template, 5);
+// results will contain 5 unique JSON strings
+```
+
+### 3. File-Based Processing
 
 The engine can process `.json` files directly from the filesystem. It supports two modes, which are detected automatically.
 
@@ -93,6 +103,8 @@ If your `.json` file contains `{{...}}` placeholders, the engine will read the f
 ```java
 SyntheticDataEngine engine = new SyntheticDataEngine();
 String result = engine.generateFromFile("path/to/event.json");
+// To generate multiple records from the file:
+List<String> results = engine.generateFromFile("path/to/event.json", 5);
 ```
 
 #### b) JSONPath-Based Processing
@@ -124,15 +136,20 @@ The engine will automatically detect the presence of the `_config.yaml` or `_con
 ```java
 SyntheticDataEngine engine = new SyntheticDataEngine();
 String result = engine.generateFromFile("path/to/event.json");
+// To generate multiple records from the file:
+List<String> results = engine.generateFromFile("path/to/event.json", 5);
 ```
 
-### 3. Directory Processing
+### 4. Directory Processing
 
-The engine can process an entire directory of `.json` files, automatically detecting the correct processing mode for each file.
+The engine can process an entire directory of `.json` files, automatically detecting the correct processing mode for each file and generating a specified number of records for each.
 
 ```java
 SyntheticDataEngine engine = new SyntheticDataEngine();
+// Generate 1 record per file
 List<String> results = engine.generateFromDirectory("path/to/my-events");
+// Generate 5 records per file
+List<String> multiResults = engine.generateFromDirectory("path/to/my-events", 5);
 ```
 
 ---

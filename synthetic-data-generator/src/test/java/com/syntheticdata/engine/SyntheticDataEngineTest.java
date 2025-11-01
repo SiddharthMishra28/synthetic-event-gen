@@ -1,6 +1,7 @@
 package com.syntheticdata.engine;
 
 import org.junit.Test;
+import java.util.List;
 import static org.junit.Assert.*;
 
 public class SyntheticDataEngineTest {
@@ -31,5 +32,15 @@ public class SyntheticDataEngineTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGenerateDataWithEmptyInput() {
         SyntheticDataEngine.generateData("");
+    }
+
+    @Test
+    public void testMultiRecordGeneration() {
+        String template = "{\"id\": \"{{UUID()}}\"}";
+        List<String> results = SyntheticDataEngine.generateData(template, 5);
+        assertEquals(5, results.size());
+        // Check for uniqueness
+        long distinctCount = results.stream().distinct().count();
+        assertTrue(distinctCount > 1);
     }
 }
