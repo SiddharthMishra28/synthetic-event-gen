@@ -1,0 +1,3 @@
+"$.eventId": "{{UUID()}}"
+"$.user.name": "{{faker.name().fullName()}}"
+"$.user.email": "{{faker.internet().emailAddress()}}"

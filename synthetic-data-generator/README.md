@@ -60,6 +60,83 @@ public class QuickStart {
 
 ---
 
+## 📖 How to Use
+
+The `SyntheticDataEngine` is the main entry point for the library. It supports several modes of operation.
+
+### 1. Direct String Processing
+
+This is the most straightforward way to use the engine. Pass a string containing placeholders to the `generateData` method.
+
+```java
+String template = "{\"id\": \"{{UUID()}}\"}";
+String result = SyntheticDataEngine.generateData(template);
+```
+
+### 2. File-Based Processing
+
+The engine can process `.json` files directly from the filesystem. It supports two modes, which are detected automatically.
+
+#### a) Direct Placeholder Processing
+
+If your `.json` file contains `{{...}}` placeholders, the engine will read the file and resolve them directly.
+
+**Example `event.json`:**
+```json
+{
+  "eventId": "{{UUID()}}",
+  "source": "direct-file"
+}
+```
+
+**Code:**
+```java
+SyntheticDataEngine engine = new SyntheticDataEngine();
+String result = engine.generateFromFile("path/to/event.json");
+```
+
+#### b) JSONPath-Based Processing
+
+For more complex scenarios, you can use a clean JSON template and a separate configuration file to define the transformations.
+
+**Example `event.json`:**
+```json
+{
+  "eventId": "",
+  "user": {
+    "name": "",
+    "email": ""
+  }
+}
+```
+
+**Example `event_config.yaml`:**
+```yaml
+"$.eventId": "{{UUID()}}"
+"$.user.name": "{{faker.name().fullName()}}"
+"$.user.email": "{{faker.internet().emailAddress()}}"
+```
+*(You can also use a `_config.properties` file)*
+
+The engine will automatically detect the presence of the `_config.yaml` or `_config.properties` file and apply the transformations.
+
+**Code:**
+```java
+SyntheticDataEngine engine = new SyntheticDataEngine();
+String result = engine.generateFromFile("path/to/event.json");
+```
+
+### 3. Directory Processing
+
+The engine can process an entire directory of `.json` files, automatically detecting the correct processing mode for each file.
+
+```java
+SyntheticDataEngine engine = new SyntheticDataEngine();
+List<String> results = engine.generateFromDirectory("path/to/my-events");
+```
+
+---
+
 ## ✨ Features
 
 The library supports a wide range of placeholders, which can be mixed and matched to generate complex and realistic data.
@@ -135,28 +212,6 @@ The true power of the library comes from its ability to combine any of the above
     -   `{{faker.name().lastName()}}_{{RANGE(1-10)}}` -> "Smith_7"
     -   `TRAN-{{RANGE(1000-9999)}}-##` -> "TRAN-5432-89"
     -   `ID-{{ALPHA(3)}}-{{RANDSTR(5)}}` -> "ID-ABC-a1B2c"
-
----
-
-## 📖 How to Use
-
-The main entry point for the library is the `SyntheticDataEngine` class.
-
-### `SyntheticDataEngine.generateData(template)`
-
-This static method is the easiest way to get started. It takes a template string as input and returns the fully resolved string.
-
-```java
-import com.syntheticdata.engine.SyntheticDataEngine;
-
-public class MyDataGenerator {
-    public static void main(String[] args) {
-        String template = "{\"id\": \"{{UUID()}}\"}";
-        String result = SyntheticDataEngine.generateData(template);
-        System.out.println(result);
-    }
-}
-```
 
 ---
 
