@@ -1,0 +1,7 @@
+{
+  "eventType": "user_signup",
+  "userId": "{{UUID()}}",
+  "username": "{{faker.name().username()}}",
+  "email": "{{faker.internet().emailAddress()}}",
+  "timestamp": "{{T-1}}"
+}

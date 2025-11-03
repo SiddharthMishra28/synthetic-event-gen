@@ -1,0 +1,4 @@
+"$.transactionId": "TXN-{{RANDSTR(12)}}"
+"$.amount": "{{RANGE(10-500)}}"
+"$.card.type": "credit"
+"$.card.number": "{{faker.finance().creditCard()}}"

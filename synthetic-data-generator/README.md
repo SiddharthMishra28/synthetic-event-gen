@@ -60,9 +60,24 @@ public class QuickStart {
 
 ---
 
-## 📖 How to Use
+## 🏃‍♀️ Running the Application
 
-The `SyntheticDataEngine` is the main entry point for the library. It supports several modes of operation.
+This project can be run directly from the command line as a standalone application. It will automatically find and process all `.json` templates in the `src/main/resources/payloads` directory and write the generated output to `src/main/resources/synthetic-data`.
+
+### How to Run
+
+1.  **Add Your Templates:** Place your `.json` template files (and any corresponding `_config.yaml` files) into the `src/main/resources/payloads` directory.
+2.  **Execute via Maven:** Run the following command from the project root:
+    ```bash
+    mvn clean install exec:java
+    ```
+3.  **Check the Output:** Your generated synthetic data files will appear in the `src/main/resources/synthetic-data` directory.
+
+---
+
+## 📖 How to Use as a Library
+
+The `SyntheticDataEngine` is the main entry point for using this project as a library. It supports several modes of operation.
 
 ### 1. Direct String Processing
 
