@@ -1,0 +1,10 @@
+outputMode: database
+count: 100
+template: "{\"testId\": \"{{UUID()}}\"}"
+
+database:
+  url: jdbc:h2:mem:testdb
+  user: sa
+  password: ""
+  table: TestTable
+  column: TestData

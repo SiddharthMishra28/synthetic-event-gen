@@ -62,16 +62,45 @@ public class QuickStart {
 
 ## 🏃‍♀️ Running the Application
 
-This project can be run directly from the command line as a standalone application. It will automatically find and process all `.json` templates in the `src/main/resources/payloads` directory and write the generated output to `src/main/resources/synthetic-data`.
+This project can be run directly from the command line as a standalone application. The output behavior is controlled by a configuration file.
 
 ### How to Run
 
-1.  **Add Your Templates:** Place your `.json` template files (and any corresponding `_config.yaml` files) into the `src/main/resources/payloads` directory.
+1.  **Configure the Application:** Create a `config.yaml` or `config.properties` file in the `src/main/resources` directory.
 2.  **Execute via Maven:** Run the following command from the project root:
     ```bash
     mvn clean install exec:java
     ```
-3.  **Check the Output:** Your generated synthetic data files will appear in the `src/main/resources/synthetic-data` directory.
+3.  **Check the Output:** Your generated synthetic data will be in the configured output (either files or the database).
+
+### Configuration
+
+The application is configured via a `config.yaml` or `config.properties` file in `src/main/resources`.
+
+**Example `config.yaml`:**
+```yaml
+outputMode: file
+# outputMode: database
+
+database:
+  url: jdbc:postgresql://localhost:5432/mydatabase
+  user: myuser
+  password: mypassword
+  table: mytable
+  column: mycolumn
+```
+
+**Example `config.properties`:**
+```properties
+outputMode=file
+# outputMode=database
+
+database.url=jdbc:postgresql://localhost:5432/mydatabase
+database.user=myuser
+database.password=mypassword
+database.table=mytable
+database.column=mycolumn
+```
 
 ---
 
@@ -165,32 +194,6 @@ SyntheticDataEngine engine = new SyntheticDataEngine();
 List<String> results = engine.generateFromDirectory("path/to/my-events");
 // Generate 5 records per file
 List<String> multiResults = engine.generateFromDirectory("path/to/my-events", 5);
-```
-
-### 5. Publishing to a Database
-
-The engine can generate synthetic data and publish it directly to a database. This is useful for load testing or for populating a database with realistic data.
-
-**Command-Line Usage:**
-
-```bash
-mvn exec:java -Dexec.mainClass="com.syntheticdata.App" -Dexec.args="--dbUrl=jdbc:postgresql://localhost:5432/mydatabase --dbUser=myuser --dbPassword=mypassword --dbTable=mytable --dbColumn=mycolumn --template=path/to/template.json --count=1000"
-```
-
-**Library Usage:**
-
-```java
-DatabaseConfig dbConfig = new DatabaseConfig(
-    "jdbc:postgresql://localhost:5432/mydatabase",
-    "myuser",
-    "mypassword",
-    "mytable",
-    "mycolumn"
-);
-
-SyntheticDataEngine engine = new SyntheticDataEngine(dbConfig);
-engine.generateAndPublish("{\"id\": \"{{UUID()}}\"}", 1000);
-engine.close();
 ```
 
 ---

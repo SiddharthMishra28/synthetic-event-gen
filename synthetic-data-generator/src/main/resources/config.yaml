@@ -1,0 +1,12 @@
+outputMode: file
+# outputMode: database
+
+count: 1000
+template: "{\"id\": \"{{UUID()}}\"}"
+
+database:
+  url: jdbc:postgresql://localhost:5432/mydatabase
+  user: myuser
+  password: mypassword
+  table: mytable
+  column: mycolumn
