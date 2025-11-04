@@ -167,6 +167,32 @@ List<String> results = engine.generateFromDirectory("path/to/my-events");
 List<String> multiResults = engine.generateFromDirectory("path/to/my-events", 5);
 ```
 
+### 5. Publishing to a Database
+
+The engine can generate synthetic data and publish it directly to a database. This is useful for load testing or for populating a database with realistic data.
+
+**Command-Line Usage:**
+
+```bash
+mvn exec:java -Dexec.mainClass="com.syntheticdata.App" -Dexec.args="--dbUrl=jdbc:postgresql://localhost:5432/mydatabase --dbUser=myuser --dbPassword=mypassword --dbTable=mytable --dbColumn=mycolumn --template=path/to/template.json --count=1000"
+```
+
+**Library Usage:**
+
+```java
+DatabaseConfig dbConfig = new DatabaseConfig(
+    "jdbc:postgresql://localhost:5432/mydatabase",
+    "myuser",
+    "mypassword",
+    "mytable",
+    "mycolumn"
+);
+
+SyntheticDataEngine engine = new SyntheticDataEngine(dbConfig);
+engine.generateAndPublish("{\"id\": \"{{UUID()}}\"}", 1000);
+engine.close();
+```
+
 ---
 
 ## ✨ Features
