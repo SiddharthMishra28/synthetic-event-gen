@@ -73,6 +73,10 @@ public class ExpressionProcessor {
             }
         }
 
+        if (expr.startsWith("REF:")) {
+            return "{{" + expr + "}}";
+        }
+
         if (expr.startsWith("faker.")) {
             try {
                 return evalFakerChain(expr);

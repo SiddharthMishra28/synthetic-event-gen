@@ -236,7 +236,43 @@ Create custom formatted strings with random digits and letters.
 -   **`$` for Random Uppercase Letters (A-Z):**
     -   **Example:** `INV-$$$` -> "INV-XYZ"
 
-### 6. Chained and Nested Expressions
+### 6. Stringified JSON Payloads
+
+The engine can process stringified JSON payloads within a larger JSON document. This is particularly useful for Kafka messages or other event-driven architectures where a payload is escaped and embedded in a parent JSON object.
+
+-   **Example:**
+
+```json
+{
+  "eventId": "{{UUID()}}",
+  "source": "kafka-topic",
+  "payload": "{\"transactionId\":\"TXN-{{RANDSTR(8)}}\",\"amount\":{{RANGE(100-500)}}}"
+}
+```
+
+The engine will automatically detect and process the placeholders in the `payload` field, resulting in a fully resolved, doubly-escaped JSON string.
+
+### 7. Value Referencing (Self-Reference)
+
+You can reference a value that has already been generated within the same JSON document. This is useful when you need two fields to have the same dynamically generated value.
+
+-   **Syntax:** `{{REF:json_path}}` where `json_path` is the [JSONPath](https://github.com/json-path/JsonPath) to the target field.
+
+-   **Example:**
+
+```json
+{
+  "universalAccountNumber": "ACC-######",
+  "transaction": {
+    "type": "DEBIT",
+    "account": "{{REF:$.universalAccountNumber}}"
+  }
+}
+```
+
+In this example, the value of `transaction.account` will be identical to the generated value of `universalAccountNumber`.
+
+### 8. Chained and Nested Expressions
 
 The true power of the library comes from its ability to combine any of the above features in a single placeholder.
 
