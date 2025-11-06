@@ -9,6 +9,8 @@ import com.syntheticdata.expression.plugins.UuidPlugin;
 import com.syntheticdata.loader.ConfigLoader;
 import com.syntheticdata.model.PayloadConfig;
 import com.syntheticdata.processor.JsonPathProcessor;
+import com.syntheticdata.publish.DatabaseConfig;
+import com.syntheticdata.publish.DatabasePublisher;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,6 +29,7 @@ public class SyntheticDataEngine {
     private final CustomPatternGenerator patternGenerator;
     private final JsonPathProcessor jsonPathProcessor;
     private final ConfigLoader configLoader;
+    private DatabasePublisher databasePublisher;
 
     public SyntheticDataEngine() {
         PluginRegistry registry = new PluginRegistry();
@@ -37,6 +41,12 @@ public class SyntheticDataEngine {
         this.patternGenerator = new CustomPatternGenerator();
         this.jsonPathProcessor = new JsonPathProcessor(expressionProcessor);
         this.configLoader = new ConfigLoader();
+        this.databasePublisher = null;
+    }
+
+    public SyntheticDataEngine(DatabaseConfig dbConfig) {
+        this();
+        this.databasePublisher = new DatabasePublisher(dbConfig);
     }
 
     public String generate(String inputTemplate) {
@@ -130,5 +140,23 @@ public class SyntheticDataEngine {
 
     public static List<String> generateData(String template, int count) {
         return new SyntheticDataEngine().generate(template, count);
+    }
+
+    public CompletableFuture<Void> generateAndPublish(String inputTemplate, int count) {
+        if (databasePublisher == null) {
+            throw new IllegalStateException("Database publisher is not initialized.");
+        }
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            String data = generate(inputTemplate);
+            futures.add(databasePublisher.publish(data));
+        }
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+    }
+
+    public void close() {
+        if (databasePublisher != null) {
+            databasePublisher.close();
+        }
     }
 }

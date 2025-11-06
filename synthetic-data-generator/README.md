@@ -62,16 +62,45 @@ public class QuickStart {
 
 ## 🏃‍♀️ Running the Application
 
-This project can be run directly from the command line as a standalone application. It will automatically find and process all `.json` templates in the `src/main/resources/payloads` directory and write the generated output to `src/main/resources/synthetic-data`.
+This project can be run directly from the command line as a standalone application. The output behavior is controlled by a configuration file.
 
 ### How to Run
 
-1.  **Add Your Templates:** Place your `.json` template files (and any corresponding `_config.yaml` files) into the `src/main/resources/payloads` directory.
+1.  **Configure the Application:** Create a `config.yaml` or `config.properties` file in the `src/main/resources` directory.
 2.  **Execute via Maven:** Run the following command from the project root:
     ```bash
     mvn clean install exec:java
     ```
-3.  **Check the Output:** Your generated synthetic data files will appear in the `src/main/resources/synthetic-data` directory.
+3.  **Check the Output:** Your generated synthetic data will be in the configured output (either files or the database).
+
+### Configuration
+
+The application is configured via a `config.yaml` or `config.properties` file in `src/main/resources`.
+
+**Example `config.yaml`:**
+```yaml
+outputMode: file
+# outputMode: database
+
+database:
+  url: jdbc:postgresql://localhost:5432/mydatabase
+  user: myuser
+  password: mypassword
+  table: mytable
+  column: mycolumn
+```
+
+**Example `config.properties`:**
+```properties
+outputMode=file
+# outputMode=database
+
+database.url=jdbc:postgresql://localhost:5432/mydatabase
+database.user=myuser
+database.password=mypassword
+database.table=mytable
+database.column=mycolumn
+```
 
 ---
 
