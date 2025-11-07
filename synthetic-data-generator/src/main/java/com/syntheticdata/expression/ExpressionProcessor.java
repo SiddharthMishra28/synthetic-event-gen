@@ -97,6 +97,14 @@ public class ExpressionProcessor {
             return java.util.UUID.randomUUID().toString();
         }
 
+        if (expr.contains("|")) {
+            String[] options = expr.split("\\|");
+            for (int i = 0; i < options.length; i++) {
+                options[i] = options[i].trim();
+            }
+            return options[random.nextInt(options.length)];
+        }
+
         return expr;
     }
 

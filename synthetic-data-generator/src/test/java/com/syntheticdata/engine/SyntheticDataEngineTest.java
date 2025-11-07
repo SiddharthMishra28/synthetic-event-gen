@@ -33,7 +33,27 @@ public class SyntheticDataEngineTest {
         String input = "{\\\"name\\\": \\\"{{faker.name.fullName}}\\\", \\\"company\\\": \\\"{{faker.company.name}}\\\"}";
         String template = String.format("{\"stringifiedJson\": \"%s\"}", input);
         String result = engine.generate(template);
-        assertTrue(result.contains("\"stringifiedJson\":\"{\\\"name\\\":"));
+
+        com.jayway.jsonpath.JsonPath path = com.jayway.jsonpath.JsonPath.compile("$.stringifiedJson");
+        String stringifiedJson = path.read(result);
+
+        com.jayway.jsonpath.JsonPath namePath = com.jayway.jsonpath.JsonPath.compile("$.name");
+        String name = namePath.read(stringifiedJson);
+        assertNotNull(name);
+
+        com.jayway.jsonpath.JsonPath companyPath = com.jayway.jsonpath.JsonPath.compile("$.company");
+        String company = companyPath.read(stringifiedJson);
+        assertNotNull(company);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGenerateDataWithNullInput() {
+        SyntheticDataEngine.generateData(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGenerateDataWithEmptyInput() {
+        SyntheticDataEngine.generateData("");
     }
 
     @Test
@@ -49,5 +69,17 @@ public class SyntheticDataEngineTest {
 
         assertNotNull(uan);
         assertEquals(uan, tranUan);
+    }
+
+    @Test
+    public void testEnumSelection() {
+        SyntheticDataEngine engine = new SyntheticDataEngine();
+        String template = "{\"productType\": \"{{ABC | DEF | GHI | PQR}}\"}";
+        String result = engine.generate(template);
+
+        com.jayway.jsonpath.JsonPath path = com.jayway.jsonpath.JsonPath.compile("$.productType");
+        String productType = path.read(result);
+
+        assertTrue(java.util.Arrays.asList("ABC", "DEF", "GHI", "PQR").contains(productType));
     }
 }
