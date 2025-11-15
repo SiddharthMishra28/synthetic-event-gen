@@ -1,50 +1,47 @@
 package com.syntheticdata;
 
 import com.syntheticdata.engine.SyntheticDataEngine;
-
-import java.io.File;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.syntheticdata.loader.ConfigLoader;
+import com.syntheticdata.model.Config;
+import com.syntheticdata.model.PayloadConfig;
+import com.syntheticdata.output.FileHandler;
+import com.syntheticdata.output.OutputHandler;
+import com.syntheticdata.output.StdoutHandler;
+import com.syntheticdata.publish.KafkaPublisher;
 
 public class App {
     public static void main(String[] args) {
         System.out.println("Starting synthetic data generation...");
 
         try {
-            // Locate the payloads directory from classpath resources
-            URL payloadsUrl = App.class.getClassLoader().getResource("payloads");
-            if (payloadsUrl == null) {
-                System.err.println("Payloads directory not found in resources.");
-                return;
-            }
-            File payloadsDir = new File(payloadsUrl.toURI());
+            ConfigLoader loader = new ConfigLoader();
+            Config config = loader.load("config.yaml", Config.class);
 
-            // Create the output directory if it doesn't exist
-            Path outputDir = Paths.get("src/main/resources/synthetic-data");
-            Files.createDirectories(outputDir);
+            OutputHandler handler;
+            switch (config.getOutputMode().toLowerCase()) {
+                case "stdout":
+                    handler = new StdoutHandler();
+                    break;
+                case "file":
+                    handler = new FileHandler();
+                    break;
+                case "publish":
+                    handler = new KafkaPublisher(config);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid output mode: " + config.getOutputMode());
+            }
 
             SyntheticDataEngine engine = new SyntheticDataEngine();
 
-            // Process all files in the directory
-            List<String> results = engine.generateFromDirectory(payloadsDir.getAbsolutePath());
-
-            // Write the results to the output directory
-            List<File> sourceFiles = Files.walk(payloadsDir.toPath())
-                .filter(path -> path.toString().endsWith(".json"))
-                .map(Path::toFile)
-                .collect(Collectors.toList());
-
-            for (int i = 0; i < results.size(); i++) {
-                File sourceFile = sourceFiles.get(i);
-                String result = results.get(i);
-                Path outputPath = outputDir.resolve(sourceFile.getName());
-                Files.write(outputPath, result.getBytes());
-                System.out.println("Generated: " + outputPath);
+            for (PayloadConfig payloadConfig : config.getPayloads()) {
+                for (int i = 0; i < payloadConfig.getCount(); i++) {
+                    String data = engine.generateFromFile("src/main/resources/payloads/" + payloadConfig.getFile());
+                    handler.handle(data, payloadConfig);
+                }
             }
+
+            handler.shutdown();
 
             System.out.println("Synthetic data generation complete.");
 

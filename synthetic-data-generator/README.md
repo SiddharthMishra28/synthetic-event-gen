@@ -62,18 +62,74 @@ public class QuickStart {
 
 ## 🏃‍♀️ Running the Application
 
-This project can be run directly from the command line as a standalone application. It will automatically find and process all `.json` templates in the `src/main/resources/payloads` directory and write the generated output to `src/main/resources/synthetic-data`.
+This project can be run directly from the command line as a standalone application. The behavior of the application is controlled by a `config.yaml` file located in `src/main/resources`.
 
 ### How to Run
 
-1.  **Add Your Templates:** Place your `.json` template files (and any corresponding `_config.yaml` files) into the `src/main/resources/payloads` directory.
-2.  **Execute via Maven:** Run the following command from the project root:
+1.  **Configure `config.yaml`:** Set the `outputMode` and other parameters in the `config.yaml` file.
+2.  **Add Your Templates:** Place your `.json` template files (and any corresponding `_config.yaml` files) into the `src/main/resources/payloads` directory.
+3.  **Execute via Maven:** Run the following command from the project root:
     ```bash
     mvn clean install exec:java
     ```
-3.  **Check the Output:** Your generated synthetic data files will appear in the `src/main/resources/synthetic-data` directory.
 
 ---
+
+## ⚙️ Output Modes
+
+The application supports three distinct output modes, which can be configured in the `config.yaml` file.
+
+### 1. `stdout`
+
+This mode prints the generated synthetic data directly to the console.
+
+**`config.yaml`:**
+```yaml
+outputMode: stdout
+payloads:
+  - name: "event"
+    file: "event.json"
+    count: 5
+```
+
+### 2. `file`
+
+This mode saves the generated synthetic data to files in a `synthetic-data` directory.
+
+**`config.yaml`:**
+```yaml
+outputMode: file
+payloads:
+  - name: "event"
+    file: "event.json"
+    count: 5
+```
+
+### 3. `publish` (Kafka)
+
+This mode publishes the generated synthetic data to a Kafka topic.
+
+**`config.yaml`:**
+```yaml
+outputMode: publish
+threadCount: 10
+kafka:
+  bootstrapServers: "localhost:9092"
+payloads:
+  - name: "event"
+    file: "event.json"
+    count: 100
+```
+
+**`PublisherConstants.java`:**
+
+The mapping from template files to Kafka topics is defined in `src/main/java/com/syntheticdata/publish/PublisherConstants.java`.
+
+```java
+public class PublisherConstants {
+    public static final String transactionConcludedEvent = "event.transactionConcluded.json:transaction.settlement.topic.qa";
+}
+```
 
 ## 📖 How to Use as a Library
 
